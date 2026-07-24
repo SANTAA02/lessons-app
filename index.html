@@ -152,9 +152,58 @@
         }
         .success-msg { background-color: var(--success-color); color: white; }
         .error-msg { background-color: var(--danger-color); color: white; }
+
+        /* شاشة تسجيل الدخول */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .login-box h2 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-top: 0;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2>تسجيل الدخول للتطبيق 🔒</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="loginUser" placeholder="أدخل اسم المستخدم">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="loginPass" placeholder="أدخل كلمة المرور">
+                </div>
+                <div id="loginError" class="alert-msg error-msg" style="margin-top: 0;"></div>
+                <button class="btn-add" onclick="checkLogin()">دخول</button>
+            </div>
+        </div>
+    </div>
 
     <div class="container">
         <h1>إضافة درس جديد (سحابي ☁️)</h1>
@@ -218,6 +267,41 @@
         </div>
     </div>
 
+    <script>
+        // ضع هنا اسم المستخدم وكلمة المرور الخاصة بك (يمكنك تغييرها كما تحب)
+        const CORRECT_USER = "admin";
+        const CORRECT_PASS = "12345";
+
+        function checkLogin() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            const errorDiv = document.getElementById('loginError');
+
+            if (user === CORRECT_USER && pass === CORRECT_PASS) {
+                // حفظ حالة الدخول في المتصفح عشان ميسألكش كل شوية
+                sessionStorage.setItem("isLoggedIn", "true");
+                document.getElementById('loginOverlay').style.display = 'none';
+            } else {
+                errorDiv.innerHTML = "اسم المستخدم أو كلمة المرور غير صحيحة!";
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // التحقق لو مسجل دخول قبل كده في نفس الجلسة
+        window.onload = function() {
+            if (sessionStorage.getItem("isLoggedIn") === "true") {
+                document.getElementById('loginOverlay').style.display = 'none';
+            }
+        }
+
+        // السماح بالضغط على زر Enter لتسجيل الدخول مباشرة
+        document.getElementById('loginPass').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkLogin();
+            }
+        });
+    </script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -266,7 +350,6 @@
             msg.innerHTML = text;
             msg.className = `alert-msg ${type === 'success' ? 'success-msg' : 'error-msg'}`;
             msg.style.display = 'block';
-            // زدت وقت ظهور الرسالة لـ 10 ثوانٍ كاملة
             setTimeout(() => { msg.style.display = 'none'; }, 10000);
         }
 
