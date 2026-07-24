@@ -49,6 +49,7 @@
             text-decoration: none;
             font-weight: bold;
             font-size: 12px;
+            cursor: pointer;
         }
         .nav-btn.active {
             background-color: var(--accent-color);
@@ -118,9 +119,9 @@
     <div class="container">
         <h1>تقويم الأسبوع ☁️</h1>
         <div class="nav-links">
-            <a href="index.html" class="nav-btn">تسجيل درس</a>
-            <a href="view.html" class="nav-btn">الجدول التفصيلي</a>
-            <a href="schedule.html" class="nav-btn active">تقويم الأسبوع</a>
+            <a onclick="location.href='index.html'" class="nav-btn">تسجيل درس</a>
+            <a onclick="location.href='view.html'" class="nav-btn">الجدول التفصيلي</a>
+            <a onclick="location.href='schedule.html'" class="nav-btn active">تقويم الأسبوع</a>
         </div>
 
         <div id="nextLessonAlert"></div>
@@ -150,24 +151,18 @@
         const daysOfWeek = ["السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
         function getCurrentDayName() {
-            // JavaScript getDay(): الأحد(0), الإثنين(1), الثلاثاء(2), الأربعاء(3), الخميس(4), الجمعة(5), السبت(6)
-            const mapDays = {
-                6: "السبت",
-                0: "الأحد",
-                1: "الإثنين",
-                2: "الثلاثاء",
-                3: "الأربعاء",
-                4: "الخميس",
-                5: "الجمعة"
-            };
-            const now = new Date();
-            return mapDays[now.getDay()];
+            // استخدام دالة تعتمد على اسم اليوم المباشر باللغة العربية لضمان المطابقة التامة بدون مشاكل فوارق التوقيت
+            const options = { weekday: 'long', timeZone: 'Africa/Cairo' };
+            const todayStr = new Intl.DateTimeFormat('ar-EG', options).format(new Date());
+            // تنظيف النص لو فيه أي تشكيل أو مسافات إضافية
+            return todayStr.trim();
         }
 
         async function loadSchedule() {
             const container = document.getElementById('scheduleContainer');
             const alertBox = document.getElementById('nextLessonAlert');
             const todayName = getCurrentDayName();
+            console.log("اليوم الحالي هو:", todayName); // للتأكد من المطلع في الـ Console
 
             try {
                 const querySnapshot = await getDocs(collection(db, "lessons"));
