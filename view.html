@@ -6,17 +6,16 @@
     <title>الجدول التفصيلي للدروس</title>
     <style>
         :root {
-            --bg-color: #111827; /* لون خلفية أغمق وأشيك */
-            --card-bg: #1f2937; /* لون البطاقة الرئيسي */
-            --nested-bg: #374151; /* لون البطاقة الفرعية (للمدرسين) */
-            --text-color: #f3f4f6; /* لون النص الأساسي */
-            --accent-color: #22d3ee; /* لون التمييز (اللبني) */
-            --border-color: #4b5563; /* لون الحدود */
-            --danger-color: #ef4444; /* لون الحذف */
-            --font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --bg-color: #111827;
+            --card-bg: #1f2937;
+            --nested-bg: #374151;
+            --text-color: #f3f4f6;
+            --accent-color: #22d3ee;
+            --border-color: #4b5563;
+            --danger-color: #ef4444;
         }
         body {
-            font-family: var(--font-family);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -32,12 +31,11 @@
             color: var(--accent-color);
             font-size: 22px;
             margin-bottom: 25px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         .nav-links {
             display: flex;
             gap: 8px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .nav-btn {
             flex: 1;
@@ -50,10 +48,6 @@
             text-decoration: none;
             font-weight: 600;
             font-size: 13px;
-            transition: all 0.3s ease;
-        }
-        .nav-btn:hover {
-            background-color: var(--nested-bg);
         }
         .nav-btn.active {
             background-color: var(--accent-color);
@@ -61,95 +55,84 @@
             border-color: var(--accent-color);
             font-weight: bold;
         }
-        /* البطاقة الرئيسية للطالب */
-        .student-group {
+        .selector-box {
             background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 16px;
+            padding: 15px;
+            border-radius: 12px;
             margin-bottom: 20px;
             border: 1px solid var(--border-color);
-            position: relative;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        .student-header {
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent-color);
+            font-size: 14px;
+            font-weight: bold;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+        .student-info-header {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
         }
-        .student-name {
+        .student-phone {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        .teacher-card {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .teacher-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        .subject-name {
+            font-weight: bold;
             color: var(--accent-color);
-            font-size: 19px;
-            font-weight: 800;
-            margin: 0;
+            font-size: 15px;
         }
         .delete-btn {
             background-color: var(--danger-color);
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 5px 10px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 11px;
             font-weight: bold;
-            transition: background-color 0.2s ease;
-        }
-        .delete-btn:hover {
-            background-color: #dc2626;
-        }
-        /* بطاقة المدرس الفرعية (اللي تحت اسم الطالب) */
-        .teacher-card {
-            background-color: var(--nested-bg);
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border-color);
-        }
-        .teacher-card:last-child {
-            margin-bottom: 0;
         }
         .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 4px;
-        }
-        .info-row:last-child {
-            margin-bottom: 0;
-        }
-        .subject-name {
-            font-weight: bold;
-            color: #ffffff;
-            font-size: 14px;
-        }
-        .teacher-name {
-            font-weight: 600;
-            color: var(--accent-color);
             font-size: 13px;
-            margin-right: auto; /* عشان اسم المدرس ييجي قبل التوقيت */
-        }
-        .time-tag {
-            background-color: rgba(34, 211, 238, 0.15);
-            color: var(--accent-color);
-            padding: 2px 6px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-        .meta-info {
-            font-size: 11px;
-            color: #d1d5db;
-            margin-top: 6px;
-            padding-top: 5px;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            color: #cbd5e1;
+            margin: 5px 0;
         }
         .no-data {
             text-align: center;
             color: #9ca3af;
             margin-top: 40px;
-            font-size: 16px;
+            font-size: 15px;
         }
     </style>
 </head>
@@ -162,14 +145,21 @@
             <a href="schedule.html" class="nav-btn">تقويم الأسبوع</a>
         </div>
 
+        <div class="selector-box">
+            <label for="studentSelect">اختر اسم الطالب لعرض مدربيه:</label>
+            <select id="studentSelect" onchange="displayStudentLessons()">
+                <option value="">-- اختر الطالب --</option>
+            </select>
+        </div>
+
         <div id="lessonsContainer">
-            <div class="no-data">جاري تحميل البيانات من السحابة...</div>
+            <div class="no-data">الرجاء اختيار طالب من القائمة أعلاه لعرض دروسه.</div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAsDDAP9-TTec22K_3XknHUO3GS4u4U-pc",
@@ -184,114 +174,92 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function loadLessons() {
-            const container = document.getElementById('lessonsContainer');
+        let allLessons = [];
+
+        async function initData() {
             try {
-                // جلب البيانات مرتبة حسب اسم الطالب أبجدياً
-                const q = query(collection(db, "lessons"), orderBy("student"));
-                const querySnapshot = await getDocs(q);
-                
-                // تجميع الدروس حسب اسم الطالب
-                let studentsData = new Map();
+                const querySnapshot = await getDocs(collection(db, "lessons"));
+                allLessons = [];
                 querySnapshot.forEach((document) => {
-                    let lesson = { id: document.id, ...document.data() };
-                    let studentName = lesson.student || 'طالب غير معروف';
-                    
-                    if (!studentsData.has(studentName)) {
-                        studentsData.set(studentName, []);
-                    }
-                    studentsData.get(studentName).push(lesson);
+                    allLessons.push({ id: document.id, ...document.data() });
                 });
-
-                if (studentsData.size === 0) {
-                    container.innerHTML = '<div class="no-data">لا توجد دروس مسجلة حالياً.</div>';
-                    return;
-                }
-
-                container.innerHTML = '';
-                
-                // بناء الواجهة: كارت لكل طالب، وجواه كروت المدرسين
-                studentsData.forEach((lessonsList, studentName) => {
-                    let teachersHtml = '';
-                    lessonsList.forEach((item) => {
-                        // التعامل مع حالة لو المدرس مصفوفة أو نص عادي
-                        let teachersList = Array.isArray(item.teacher) ? item.teacher : [item.teacher || 'غير محدد'];
-                        let teacherDisplay = teachersList.join('، '); // عرض كل المدرسين للدرس الواحد
-
-                        teachersHtml += `
-                            <div class="teacher-card">
-                                <div class="info-row">
-                                    <span class="subject-name">${item.subject} (${item.book || 'بدون ملزمة'})</span>
-                                    <span class="teacher-name">👤 ${teacherDisplay}</span>
-                                    <span class="time-tag">⏰ ${item.time || 'غير محدد'}</span>
-                                </div>
-                                <div class="meta-info">
-                                    الأيام: ${item.days ? item.days.join('، ') : 'غير محدد'} | المصاريف: ${item.cost || 0} جنيه
-                                </div>
-                            </div>
-                        `;
-                    });
-
-                    // الكارت الرئيسي للطالب
-                    container.innerHTML += `
-                        <div class="student-group">
-                            <div class="student-header">
-                                <h2 class="student-name">${studentName}</h2>
-                                <button class="delete-btn" onclick="deleteStudentLessons('${studentName}', this)">حذف كل دروسه</button>
-                            </div>
-                            ${teachersHtml}
-                        </div>
-                    `;
-                });
-                
-                // تحديث رسالة الحذف عشان تكون أوضح
-                window.deleteStudentLessons = async function(studentName, btn) {
-                    if (confirm(`هل أنت متأكد من حذف كل المواد والدروس المسجلة للطالب "${studentName}" نهائياً؟`)) {
-                        btn.innerText = 'جاري الحذف...';
-                        try {
-                            // جلب كل دروس الطالب ده وحذفها واحد بواحد
-                            const qRef = query(collection(db, "lessons"), (item) => item.student === studentName); // الفلترة هنا وهمية لأننا مش بنستخدم where مع getDocs في الـ loop، الطريقة الصح هي الـ loop الجاية
-                            
-                            // الطريقة الصحيحة: نجيبهم ونحذفهم
-                            const queryToDelete = query(collection(db, "lessons")); // بنجيب الكل ونفلتر في الـ loop
-                            const snapshotToDelete = await getDocs(queryToDelete);
-                            
-                            let deletePromises = [];
-                            snapshotToDelete.forEach((docSnap) => {
-                                if (docSnap.data().student === studentName) {
-                                    deletePromises.push(deleteDoc(doc(db, "lessons", docSnap.id)));
-                                }
-                            });
-                            
-                            await Promise.all(deletePromises);
-                            loadLessons(); // إعادة التحميل
-                        } catch (e) {
-                            console.error(e);
-                            alert('فشل عملية الحذف!');
-                            btn.innerText = 'حذف كل دروسه';
-                        }
-                    }
-                };
-
+                populateStudentDropdown();
             } catch (e) {
                 console.error(e);
-                container.innerHTML = '<div class="no-data">حدث خطأ أثناء الاتصال بقاعدة البيانات.</div>';
+                document.getElementById('lessonsContainer').innerHTML = '<div class="no-data">خطأ في الاتصال بقاعدة البيانات.</div>';
             }
         }
 
-        // وظيفة الحذف الفردية (لو عايز ترجعها، بس الأفضل استخدام حذف كل دروس الطالب)
+        function populateStudentDropdown() {
+            const select = document.getElementById('studentSelect');
+            let students = [...new Set(allLessons.map(l => l.student))].filter(Boolean);
+            
+            select.innerHTML = '<option value="">-- اختر الطالب --</option>';
+            students.forEach(st => {
+                select.innerHTML += `<option value="${st}">${st}</option>`;
+            });
+        }
+
+        window.displayStudentLessons = function() {
+            const selectedStudent = document.getElementById('studentSelect').value;
+            const container = document.getElementById('lessonsContainer');
+
+            if (!selectedStudent) {
+                container.innerHTML = '<div class="no-data">الرجاء اختيار طالب من القائمة أعلاه لعرض دروسه.</div>';
+                return;
+            }
+
+            let studentLessons = allLessons.filter(l => l.student === selectedStudent);
+
+            if (studentLessons.length === 0) {
+                container.innerHTML = '<div class="no-data">لا توجد دروس مسجلة لهذا الطالب.</div>';
+                return;
+            }
+
+            let phone = studentLessons[0].phone || 'غير مسجل';
+            
+            let html = `
+                <div class="student-info-header">
+                    <div>
+                        <strong style="font-size: 16px; color: var(--accent-color);">${selectedStudent}</strong>
+                        <div class="student-phone">📞 الهاتف: ${phone}</div>
+                    </div>
+                </div>
+            `;
+
+            studentLessons.forEach(item => {
+                let teachersList = Array.isArray(item.teacher) ? item.teacher.join('، ') : (item.teacher || 'غير محدد');
+                html += `
+                    <div class="teacher-card">
+                        <div class="teacher-header">
+                            <span class="subject-name">📚 ${item.subject} (${item.book || 'بدون ملزمة'})</span>
+                            <button class="delete-btn" onclick="deleteLesson('${item.id}')">حذف الدرس</button>
+                        </div>
+                        <div class="info-row"><strong>المدرس:</strong> ${teachersList}</div>
+                        <div class="info-row"><strong>⏰ الوقت:</strong> ${item.time || 'غير محدد'}</div>
+                        <div class="info-row"><strong>📅 الأيام:</strong> ${item.days ? item.days.join('، ') : 'غير محدد'}</div>
+                        <div class="info-row"><strong>💰 المصاريف:</strong> ${item.cost || 0} جنيه</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
         window.deleteLesson = async function(id) {
-            if (confirm('هل أنت متأكد من حذف هذا الدرس نهائياً من السحابة؟')) {
+            if (confirm('هل أنت متأكد من حذف هذا الدرس نهائياً؟')) {
                 try {
                     await deleteDoc(doc(db, "lessons", id));
-                    loadLessons();
+                    await initData();
+                    document.getElementById('studentSelect').value = "";
+                    document.getElementById('lessonsContainer').innerHTML = '<div class="no-data">تم حذف الدرس. اختر الطالب مرة أخرى لتحديث القائمة.</div>';
                 } catch (e) {
-                    alert('فشل عملية الحذف!');
+                    alert('فشل الحذف!');
                 }
             }
         }
 
-        loadLessons();
+        initData();
     </script>
 </body>
 </html>
