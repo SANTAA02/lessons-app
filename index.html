@@ -142,9 +142,9 @@
 
         .alert-msg {
             display: none;
-            padding: 12px;
+            padding: 14px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-top: 12px;
             font-size: 13px;
             font-weight: bold;
             text-align: center;
@@ -164,8 +164,6 @@
             <a onclick="location.href='view.html'" class="nav-btn">الجدول التفصيلي</a>
             <a onclick="location.href='schedule.html'" class="nav-btn">تقويم الأسبوع</a>
         </div>
-
-        <div id="alertMsg" class="alert-msg"></div>
 
         <div class="card">
             <div class="form-grid">
@@ -213,6 +211,9 @@
                 </div>
 
                 <button class="btn-add" onclick="addLesson()">حفظ الدرس أونلاين</button>
+                
+                <!-- مكان رسالة الإنذار بقى تحت زرار الحفظ مباشرة -->
+                <div id="alertMsg" class="alert-msg"></div>
             </div>
         </div>
     </div>
@@ -265,7 +266,8 @@
             msg.innerHTML = text;
             msg.className = `alert-msg ${type === 'success' ? 'success-msg' : 'error-msg'}`;
             msg.style.display = 'block';
-            setTimeout(() => { msg.style.display = 'none'; }, 6000);
+            // زدت وقت ظهور الرسالة لـ 8 ثواني عشان تلحق تقراها كويس
+            setTimeout(() => { msg.style.display = 'none'; }, 8000);
         }
 
         window.addLesson = async function() {
@@ -293,7 +295,6 @@
                 return;
             }
 
-            // فحص لحظي مباشر من قاعدة البيانات السحابية لضمان عدم وجود أي تداخل
             let conflictFound = null;
             try {
                 const querySnapshot = await getDocs(collection(db, "lessons"));
