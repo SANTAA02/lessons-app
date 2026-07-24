@@ -142,12 +142,13 @@
 
         .alert-msg {
             display: none;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
             font-size: 13px;
             font-weight: bold;
             text-align: center;
+            line-height: 1.6;
         }
         .success-msg { background-color: var(--success-color); color: white; }
         .error-msg { background-color: var(--danger-color); color: white; }
@@ -267,10 +268,10 @@
 
         function showAlert(text, type) {
             const msg = document.getElementById('alertMsg');
-            msg.innerText = text;
+            msg.innerHTML = text;
             msg.className = `alert-msg ${type === 'success' ? 'success-msg' : 'error-msg'}`;
             msg.style.display = 'block';
-            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            setTimeout(() => { msg.style.display = 'none'; }, 5000);
         }
 
         window.addLesson = async function() {
@@ -290,6 +291,33 @@
 
             if (days.length === 0) {
                 showAlert('الرجاء اختيار يوم واحد على الأقل للدرس', 'error');
+                return;
+            }
+
+            if (!time) {
+                showAlert('الرجاء تحديد ساعة الدرس لفحص تعارض المواعيد', 'error');
+                return;
+            }
+
+            // فحص التعارض: هل نفس الطالب عنده درس في نفس الوقت وفي أي يوم من الأيام المختارة؟
+            let conflictFound = null;
+            for (let existing of lessons) {
+                if (existing.student && existing.student.toLowerCase() === student.toLowerCase() && existing.time === time) {
+                    // نتحقق لو فيه تقاطع في الأيام
+                    let commonDays = days.filter(d => existing.days && existing.days.includes(d));
+                    if (commonDays.length > 0) {
+                        conflictFound = {
+                            day: commonDays[0],
+                            subject: existing.subject,
+                            teacher: existing.teacher || 'غير محدد'
+                        };
+                        break;
+                    }
+                }
+            }
+
+            if (conflictFound) {
+                showAlert(`⚠️ <strong>انتبه!</strong> الميعاد محجوز بالفعل.<br>الطالب <strong>${student}</strong> لديه درس مادة (<strong>${conflictFound.subject}</strong>) مع المدرس (${conflictFound.teacher}) في يوم <strong>${conflictFound.day}</strong> الساعة <strong>${time}</strong>.`, 'error');
                 return;
             }
 
