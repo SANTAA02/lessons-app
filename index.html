@@ -173,6 +173,10 @@
                     <datalist id="studentsList"></datalist>
                 </div>
                 <div class="form-group">
+                    <label>رقم التلفون</label>
+                    <input type="tel" id="studentPhone" placeholder="مثال: 01012345678">
+                </div>
+                <div class="form-group">
                     <label>المادة الدراسية</label>
                     <input type="text" id="subject" placeholder="مثال: رياضيات">
                 </div>
@@ -211,7 +215,6 @@
         </div>
     </div>
 
-    <!-- ربط وتهيئة الفايربيز -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -271,6 +274,7 @@
 
         window.addLesson = async function() {
             const student = document.getElementById('studentName').value.trim();
+            const phone = document.getElementById('studentPhone').value.trim();
             const subject = document.getElementById('subject').value.trim();
             const teacher = document.getElementById('teacherName').value.trim();
             const book = document.getElementById('bookType').value.trim();
@@ -288,21 +292,9 @@
                 return;
             }
 
-            // فحص التضارب الذكي
-            if (time) {
-                for (let existing of lessons) {
-                    if (existing.student && existing.student.toLowerCase() === student.toLowerCase() && existing.time === time) {
-                        let sharedDays = days.filter(d => existing.days && existing.days.includes(d));
-                        if (sharedDays.length > 0) {
-                            showAlert(`تنبيه تضارب: الطالب "${student}" لديه بالفعل درس (${existing.subject}) في يوم (${sharedDays.join('، ')}) الساعة ${time}!`, 'error');
-                            return;
-                        }
-                    }
-                }
-            }
-
             const newLesson = {
                 student,
+                phone,
                 subject,
                 teacher,
                 book,
@@ -321,6 +313,7 @@
                 document.getElementById('bookType').value = '';
                 document.getElementById('lessonTime').value = '';
                 document.getElementById('lessonCost').value = '';
+                document.getElementById('studentPhone').value = '';
                 document.querySelectorAll('#daysContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
                 
                 await fetchLessons();
