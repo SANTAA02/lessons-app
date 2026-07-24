@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الجدول التفصيلي للدروس</title>
+    <title>تقويم الأسبوع</title>
     <style>
         :root {
-            --bg-color: #111827;
-            --card-bg: #1f2937;
-            --nested-bg: #374151;
-            --text-color: #f3f4f6;
-            --accent-color: #22d3ee;
-            --border-color: #4b5563;
-            --danger-color: #ef4444;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --border-color: #334155;
+            --today-bg: #0369a1;
+            --today-border: #38bdf8;
+            --alert-bg: #065f46;
         }
         body {
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -29,137 +30,111 @@
         h1 {
             text-align: center;
             color: var(--accent-color);
-            font-size: 22px;
-            margin-bottom: 25px;
+            font-size: 20px;
+            margin-bottom: 20px;
         }
         .nav-links {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             margin-bottom: 20px;
         }
         .nav-btn {
             flex: 1;
             text-align: center;
-            padding: 12px 5px;
+            padding: 10px 5px;
             background-color: var(--card-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
+            border-radius: 8px;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 13px;
+            font-weight: bold;
+            font-size: 12px;
         }
         .nav-btn.active {
             background-color: var(--accent-color);
             color: var(--bg-color);
             border-color: var(--accent-color);
-            font-weight: bold;
         }
-        .selector-box {
-            background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 12px;
+        /* كارت التنبيه بأقرب درس اليوم */
+        .alert-box {
+            background-color: var(--alert-bg);
+            border: 1px solid #10b981;
+            padding: 12px 15px;
+            border-radius: 10px;
             margin-bottom: 20px;
-            border: 1px solid var(--border-color);
+            font-size: 13px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--accent-color);
-            font-size: 14px;
+        .alert-title {
             font-weight: bold;
+            color: #34d399;
+            margin-bottom: 4px;
         }
-        select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-size: 16px;
-        }
-        .student-info-header {
+        .day-section {
             background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 12px;
+            padding: 12px 15px;
+            border-radius: 10px;
             margin-bottom: 15px;
             border: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
-        .student-phone {
-            color: #94a3b8;
-            font-size: 13px;
+        /* تصميم مختلف ومميز لليوم الحالي */
+        .day-section.today {
+            background-color: var(--today-bg);
+            border: 2px solid var(--today-border);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
         }
-        .teacher-card {
-            background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid var(--border-color);
-            position: relative;
-        }
-        .teacher-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .day-title {
+            color: var(--accent-color);
+            font-size: 16px;
             margin-bottom: 8px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
+            padding-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
         }
-        .subject-name {
-            font-weight: bold;
-            color: var(--accent-color);
-            font-size: 15px;
-        }
-        .delete-btn {
-            background-color: var(--danger-color);
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
+        .today .day-title {
+            color: #ffffff;
+            border-bottom-color: rgba(255,255,255,0.3);
             font-weight: bold;
         }
-        .info-row {
+        .day-item {
             font-size: 13px;
             color: #cbd5e1;
-            margin: 5px 0;
+            margin: 6px 0;
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        .today .day-item {
+            background: #1e293b;
+            color: #f8fafc;
         }
         .no-data {
             text-align: center;
-            color: #9ca3af;
+            color: #94a3b8;
             margin-top: 40px;
-            font-size: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>الجدول التفصيلي للدروس 🗓️</h1>
+        <h1>تقويم الأسبوع ☁️</h1>
         <div class="nav-links">
             <a href="index.html" class="nav-btn">تسجيل درس</a>
-            <a href="view.html" class="nav-btn active">الجدول التفصيلي</a>
-            <a href="schedule.html" class="nav-btn">تقويم الأسبوع</a>
+            <a href="view.html" class="nav-btn">الجدول التفصيلي</a>
+            <a href="schedule.html" class="nav-btn active">تقويم الأسبوع</a>
         </div>
 
-        <div class="selector-box">
-            <label for="studentSelect">اختر اسم الطالب لعرض مدربيه:</label>
-            <select id="studentSelect" onchange="displayStudentLessons()">
-                <option value="">-- اختر الطالب --</option>
-            </select>
-        </div>
+        <div id="nextLessonAlert"></div>
 
-        <div id="lessonsContainer">
-            <div class="no-data">الرجاء اختيار طالب من القائمة أعلاه لعرض دروسه.</div>
+        <div id="scheduleContainer">
+            <div class="no-data">جاري تحميل التقويم...</div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAsDDAP9-TTec22K_3XknHUO3GS4u4U-pc",
@@ -174,92 +149,97 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let allLessons = [];
+        const daysOfWeek = ["السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
-        async function initData() {
+        // تحديد اسم اليوم الحالي بالعربي بناءً على نظام الجهاز
+        function getCurrentDayName() {
+            const jsDays = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            const now = new Date();
+            // تقريب يوم الأسبوع بما يوافق مصفوفة أيامنا
+            let dayIndex = now.getDay();
+            // تحويل طريقتنا لتوائم مصفوفة السبت كبداية أسبوع لو حابب، أو النظام العام:
+            // الأحد (0)، الإثنين (1)، الثلاثاء (2)، الأربعاء (3)، الخميس (4)، الجمعة (5)، السبت (6)
+            return jsDays[dayIndex];
+        }
+
+        async function loadSchedule() {
+            const container = document.getElementById('scheduleContainer');
+            const alertBox = document.getElementById('nextLessonAlert');
+            const todayName = getCurrentDayName();
+
             try {
                 const querySnapshot = await getDocs(collection(db, "lessons"));
-                allLessons = [];
-                querySnapshot.forEach((document) => {
-                    allLessons.push({ id: document.id, ...document.data() });
+                let lessons = [];
+                querySnapshot.forEach((doc) => {
+                    lessons.push(doc.data());
                 });
-                populateStudentDropdown();
+
+                container.innerHTML = '';
+                
+                let todayLessons = [];
+
+                daysOfWeek.forEach(day => {
+                    let dayLessons = lessons.filter(l => l.days && l.days.includes(day));
+                    
+                    if (day === todayName) {
+                        todayLessons = dayLessons;
+                    }
+
+                    let isToday = (day === todayName);
+                    let sectionClass = isToday ? "day-section today" : "day-section";
+                    let badge = isToday ? ' <span style="background:#38bdf8; color:#0f172a; padding:1px 6px; border-radius:4px; font-size:11px;">اليوم</span>' : '';
+
+                    let html = `<div class="${sectionClass}">
+                        <div class="day-title">${day} ${badge}</div>`;
+                    
+                    if (dayLessons.length === 0) {
+                        html += `<div class="day-item" style="color: #64748b;">لا توجد دروس في هذا اليوم</div>`;
+                    } else {
+                        // ترتيب دروس اليوم بالحسبان الزمني لو أمكن
+                        dayLessons.forEach(l => {
+                            let teachers = Array.isArray(l.teacher) ? l.teacher.join('، ') : (l.teacher || 'غير محدد');
+                            html += `<div class="day-item">
+                                <strong>${l.student}</strong> - ${l.subject} (${teachers}) 
+                                <br><span style="color:var(--accent-color);">⏰ ${l.time || 'وقت غير محدد'}</span>
+                            </div>`;
+                        });
+                    }
+                    html += `</div>`;
+                    container.innerHTML += html;
+                });
+
+                // معالجة التنبيه بأقرب درس اليوم
+                if (todayLessons.length > 0) {
+                    // فرز الدروس حسب الوقت تصاعدياً
+                    todayLessons.sort((a, b) => (a.time || "23:59").localeCompare(b.time || "23:59"));
+                    
+                    // البحث عن أول درس وقته لسه مخلصش أو عرض الأول كأقرب درس
+                    let nextLesson = todayLessons[0];
+                    let teachersStr = Array.isArray(nextLesson.teacher) ? nextLesson.teacher.join('، ') : nextLesson.teacher;
+                    
+                    alertBox.innerHTML = `
+                        <div class="alert-box">
+                            <div class="alert-title">🔔 تنبيه أقرب موعد درس اليوم (${todayName}):</div>
+                            <div>الطالب: <strong>${nextLesson.student}</strong> | المادة: <strong>${nextLesson.subject}</strong></div>
+                            <div>المدرس: ${teachersStr} | الساعة: <span style="color:#fde047; font-weight:bold;">${nextLesson.time || 'غير محدد'}</span></div>
+                        </div>
+                    `;
+                } else {
+                    alertBox.innerHTML = `
+                        <div class="alert-box" style="background-color: #1e293b; border-color: #334155;">
+                            <div class="alert-title" style="color: #94a3b8;">استراحة اليوم:</div>
+                            <div>لا توجد أي دروس مسجلة لجلسات اليوم (${todayName}).</div>
+                        </div>
+                    `;
+                }
+
             } catch (e) {
                 console.error(e);
-                document.getElementById('lessonsContainer').innerHTML = '<div class="no-data">خطأ في الاتصال بقاعدة البيانات.</div>';
+                container.innerHTML = '<div class="no-data">حدث خطأ في تحميل التقويم.</div>';
             }
         }
 
-        function populateStudentDropdown() {
-            const select = document.getElementById('studentSelect');
-            let students = [...new Set(allLessons.map(l => l.student))].filter(Boolean);
-            
-            select.innerHTML = '<option value="">-- اختر الطالب --</option>';
-            students.forEach(st => {
-                select.innerHTML += `<option value="${st}">${st}</option>`;
-            });
-        }
-
-        window.displayStudentLessons = function() {
-            const selectedStudent = document.getElementById('studentSelect').value;
-            const container = document.getElementById('lessonsContainer');
-
-            if (!selectedStudent) {
-                container.innerHTML = '<div class="no-data">الرجاء اختيار طالب من القائمة أعلاه لعرض دروسه.</div>';
-                return;
-            }
-
-            let studentLessons = allLessons.filter(l => l.student === selectedStudent);
-
-            if (studentLessons.length === 0) {
-                container.innerHTML = '<div class="no-data">لا توجد دروس مسجلة لهذا الطالب.</div>';
-                return;
-            }
-
-            let phone = studentLessons[0].phone || 'غير مسجل';
-            
-            let html = `
-                <div class="student-info-header">
-                    <div>
-                        <strong style="font-size: 16px; color: var(--accent-color);">${selectedStudent}</strong>
-                        <div class="student-phone">📞 الهاتف: ${phone}</div>
-                    </div>
-                </div>
-            `;
-
-            studentLessons.forEach(item => {
-                let teachersList = Array.isArray(item.teacher) ? item.teacher.join('، ') : (item.teacher || 'غير محدد');
-                html += `
-                    <div class="teacher-card">
-                        <div class="teacher-header">
-                            <span class="subject-name">📚 ${item.subject} (${item.book || 'بدون ملزمة'})</span>
-                            <button class="delete-btn" onclick="deleteLesson('${item.id}')">حذف الدرس</button>
-                        </div>
-                        <div class="info-row"><strong>المدرس:</strong> ${teachersList}</div>
-                        <div class="info-row"><strong>⏰ الوقت:</strong> ${item.time || 'غير محدد'}</div>
-                        <div class="info-row"><strong>📅 الأيام:</strong> ${item.days ? item.days.join('، ') : 'غير محدد'}</div>
-                        <div class="info-row"><strong>💰 المصاريف:</strong> ${item.cost || 0} جنيه</div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        window.deleteLesson = async function(id) {
-            if (confirm('هل أنت متأكد من حذف هذا الدرس نهائياً؟')) {
-                try {
-                    await deleteDoc(doc(db, "lessons", id));
-                    await initData();
-                    document.getElementById('studentSelect').value = "";
-                    document.getElementById('lessonsContainer').innerHTML = '<div class="no-data">تم حذف الدرس. اختر الطالب مرة أخرى لتحديث القائمة.</div>';
-                } catch (e) {
-                    alert('فشل الحذف!');
-                }
-            }
-        }
-
-        initData();
+        loadSchedule();
     </script>
 </body>
 </html>
