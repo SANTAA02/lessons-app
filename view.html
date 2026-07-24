@@ -8,7 +8,6 @@
         :root {
             --bg-color: #111827;
             --card-bg: #1f2937;
-            --nested-bg: #374151;
             --text-color: #f3f4f6;
             --accent-color: #22d3ee;
             --border-color: #4b5563;
@@ -78,19 +77,16 @@
             color: var(--text-color);
             font-size: 16px;
         }
-        .student-info-header {
+        .student-title-card {
             background-color: var(--card-bg);
             padding: 15px;
             border-radius: 12px;
             margin-bottom: 15px;
             border: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .student-phone {
-            color: #94a3b8;
-            font-size: 13px;
+            font-size: 17px;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-align: center;
         }
         .teacher-card {
             background-color: var(--card-bg);
@@ -216,26 +212,19 @@
                 return;
             }
 
-            let phone = studentLessons[0].phone || 'غير مسجل';
-            
-            let html = `
-                <div class="student-info-header">
-                    <div>
-                        <strong style="font-size: 16px; color: var(--accent-color);">${selectedStudent}</strong>
-                        <div class="student-phone">📞 الهاتف: ${phone}</div>
-                    </div>
-                </div>
-            `;
+            let html = `<div class="student-title-card">الطالب: ${selectedStudent}</div>`;
 
             studentLessons.forEach(item => {
-                let teachersList = Array.isArray(item.teacher) ? item.teacher.join('، ') : (item.teacher || 'غير محدد');
+                let teacherName = item.teacher || 'غير محدد';
+                let teacherPhone = item.teacherPhone ? ` 📞 (${item.teacherPhone})` : '';
+
                 html += `
                     <div class="teacher-card">
                         <div class="teacher-header">
                             <span class="subject-name">📚 ${item.subject} (${item.book || 'بدون ملزمة'})</span>
                             <button class="delete-btn" onclick="deleteLesson('${item.id}')">حذف الدرس</button>
                         </div>
-                        <div class="info-row"><strong>المدرس:</strong> ${teachersList}</div>
+                        <div class="info-row"><strong>المدرس:</strong> ${teacherName} ${teacherPhone}</div>
                         <div class="info-row"><strong>⏰ الوقت:</strong> ${item.time || 'غير محدد'}</div>
                         <div class="info-row"><strong>📅 الأيام:</strong> ${item.days ? item.days.join('، ') : 'غير محدد'}</div>
                         <div class="info-row"><strong>💰 المصاريف:</strong> ${item.cost || 0} جنيه</div>
