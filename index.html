@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل دروس الأبناء</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border-color: #334155;
+            --success-color: #22c55e;
+            --danger-color: #f43f5e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-color);
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px 5px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .nav-btn.active {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border-color: var(--accent-color);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        input, select {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #0f172a;
+            color: var(--text-color);
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .days-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .day-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        button.btn-add {
+            background-color: var(--accent-color);
+            color: #0f172a;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        button.btn-add:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .alert-msg {
+            display: none;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .success-msg { background-color: var(--success-color); color: white; }
+        .error-msg { background-color: var(--danger-color); color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>إضافة درس جديد (سحابي ☁️)</h1>
+
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn active">تسجيل درس</a>
+            <a href="view.html" class="nav-btn">الجدول التفصيلي</a>
+            <a href="schedule.html" class="nav-btn">تقويم الأسبوع</a>
+        </div>
+
+        <div id="alertMsg" class="alert-msg"></div>
+
+        <div class="card">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>اسم الطالب</label>
+                    <input type="text" id="studentName" list="studentsList" placeholder="اكتب أو اختر اسم الطالب">
+                    <datalist id="studentsList"></datalist>
+                </div>
+                <div class="form-group">
+                    <label>المادة الدراسية</label>
+                    <input type="text" id="subject" placeholder="مثال: رياضيات">
+                </div>
+                <div class="form-group">
+                    <label>اسم المدرس</label>
+                    <input type="text" id="teacherName" placeholder="مثال: أستاذ محمد">
+                </div>
+                <div class="form-group">
+                    <label>نوع الكتب / الملزمة</label>
+                    <input type="text" id="bookType" placeholder="مثال: الملزمة الخارجية">
+                </div>
+                <div class="form-group">
+                    <label>ساعة الدرس (انقر للاختيار)</label>
+                    <input type="time" id="lessonTime">
+                </div>
+                <div class="form-group">
+                    <label>مصاريف الدرس (جنيه)</label>
+                    <input type="number" id="lessonCost" placeholder="مثال: 150">
+                </div>
+                
+                <div class="form-group">
+                    <label>أيام الدرس الأسبوعية</label>
+                    <div class="days-selector" id="daysContainer">
+                        <label class="day-checkbox"><input type="checkbox" value="السبت"> السبت</label>
+                        <label class="day-checkbox"><input type="checkbox" value="الأحد"> الأحد</label>
+                        <label class="day-checkbox"><input type="checkbox" value="الإثنين"> الإثنين</label>
+                        <label class="day-checkbox"><input type="checkbox" value="الثلاثاء"> الثلاثاء</label>
+                        <label class="day-checkbox"><input type="checkbox" value="الأربعاء"> الأربعاء</label>
+                        <label class="day-checkbox"><input type="checkbox" value="الخميس"> الخميس</label>
+                        <label class="day-checkbox"><input type="checkbox" value="الجمعة"> الجمعة</label>
+                    </div>
+                </div>
+
+                <button class="btn-add" onclick="addLesson()">حفظ الدرس أونلاين</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ربط وتهيئة الفايربيز -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAsDDAP9-TTec22K_3XknHUO3GS4u4U-pc",
+          authDomain: "schoollessons-4dc1a.firebaseapp.com",
+          projectId: "schoollessons-4dc1a",
+          storageBucket: "schoollessons-4dc1a.firebasestorage.app",
+          messagingSenderId: "467824837137",
+          appId: "1:467824837137:web:fb507e6f90e03ee57e27b0",
+          measurementId: "G-4XTWCG055R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let lessons = [];
+
+        async function fetchLessons() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "lessons"));
+                lessons = [];
+                querySnapshot.forEach((doc) => {
+                    lessons.push({ id: doc.id, ...doc.data() });
+                });
+                updateStudentsList();
+            } catch (e) {
+                console.error("خطأ في جلب البيانات: ", e);
+            }
+        }
+        fetchLessons();
+        
+        function updateStudentsList() {
+            const datalist = document.getElementById('studentsList');
+            let students = [...new Set(lessons.map(l => l.student))];
+            datalist.innerHTML = '';
+            students.forEach(st => {
+                datalist.innerHTML += `<option value="${st}">`;
+            });
+        }
+
+        function getSelectedDays() {
+            const checkboxes = document.querySelectorAll('#daysContainer input[type="checkbox"]:checked');
+            let days = [];
+            checkboxes.forEach(cb => days.push(cb.value));
+            return days;
+        }
+
+        function showAlert(text, type) {
+            const msg = document.getElementById('alertMsg');
+            msg.innerText = text;
+            msg.className = `alert-msg ${type === 'success' ? 'success-msg' : 'error-msg'}`;
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+        }
+
+        window.addLesson = async function() {
+            const student = document.getElementById('studentName').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const teacher = document.getElementById('teacherName').value.trim();
+            const book = document.getElementById('bookType').value.trim();
+            const days = getSelectedDays();
+            const time = document.getElementById('lessonTime').value;
+            const cost = document.getElementById('lessonCost').value.trim();
+
+            if (!student || !subject || !teacher) {
+                showAlert('الرجاء إدخال اسم الطالب، المادة، والمدرس على الأقل', 'error');
+                return;
+            }
+
+            if (days.length === 0) {
+                showAlert('الرجاء اختيار يوم واحد على الأقل للدرس', 'error');
+                return;
+            }
+
+            // فحص التضارب الذكي
+            if (time) {
+                for (let existing of lessons) {
+                    if (existing.student && existing.student.toLowerCase() === student.toLowerCase() && existing.time === time) {
+                        let sharedDays = days.filter(d => existing.days && existing.days.includes(d));
+                        if (sharedDays.length > 0) {
+                            showAlert(`تنبيه تضارب: الطالب "${student}" لديه بالفعل درس (${existing.subject}) في يوم (${sharedDays.join('، ')}) الساعة ${time}!`, 'error');
+                            return;
+                        }
+                    }
+                }
+            }
+
+            const newLesson = {
+                student,
+                subject,
+                teacher,
+                book,
+                days,
+                time,
+                cost: cost ? Number(cost) : 0,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                await addDoc(collection(db, "lessons"), newLesson);
+                showAlert('تم حفظ الدرس بنجاح في السحابة أونلاين! 🚀', 'success');
+                
+                document.getElementById('subject').value = '';
+                document.getElementById('teacherName').value = '';
+                document.getElementById('bookType').value = '';
+                document.getElementById('lessonTime').value = '';
+                document.getElementById('lessonCost').value = '';
+                document.querySelectorAll('#daysContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
+                
+                await fetchLessons();
+            } catch (e) {
+                console.error("خطأ أثناء الإضافة: ", e);
+                showAlert('حدث خطأ أثناء الحفظ بالسحابة، حاول مرة أخرى.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

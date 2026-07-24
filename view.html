@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الجدول التفصيلي للدروس</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --border-color: #334155;
+            --danger-color: #f43f5e;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: var(--accent-color);
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .nav-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px 5px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .nav-btn.active {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border-color: var(--accent-color);
+        }
+        .lesson-card {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .lesson-card h3 {
+            margin: 0 0 8px 0;
+            color: var(--accent-color);
+            font-size: 16px;
+        }
+        .lesson-card p {
+            margin: 4px 0;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .no-data {
+            text-align: center;
+            color: #94a3b8;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>الجدول التفصيلي للدروس ☁️</h1>
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn">تسجيل درس</a>
+            <a href="view.html" class="nav-btn active">الجدول التفصيلي</a>
+            <a href="schedule.html" class="nav-btn">تقويم الأسبوع</a>
+        </div>
+
+        <div id="lessonsContainer">
+            <div class="no-data">جاري تحميل البيانات من السحابة...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAsDDAP9-TTec22K_3XknHUO3GS4u4U-pc",
+          authDomain: "schoollessons-4dc1a.firebaseapp.com",
+          projectId: "schoollessons-4dc1a",
+          storageBucket: "schoollessons-4dc1a.firebasestorage.app",
+          messagingSenderId: "467824837137",
+          appId: "1:467824837137:web:fb507e6f90e03ee57e27b0",
+          measurementId: "G-4XTWCG055R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadLessons() {
+            const container = document.getElementById('lessonsContainer');
+            try {
+                const querySnapshot = await getDocs(collection(db, "lessons"));
+                let lessons = [];
+                querySnapshot.forEach((document) => {
+                    lessons.push({ id: document.id, ...document.data() });
+                });
+
+                if (lessons.length === 0) {
+                    container.innerHTML = '<div class="no-data">لا توجد دروس مسجلة حالياً.</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                lessons.forEach((item) => {
+                    container.innerHTML += `
+                        <div class="lesson-card">
+                            <button class="delete-btn" onclick="deleteLesson('${item.id}')">حذف</button>
+                            <h3>الطالب: ${item.student}</h3>
+                            <p><strong>المادة:</strong> ${item.subject} (${item.book || 'بدون ملزمة'})</p>
+                            <p><strong>المدرس:</strong> ${item.teacher}</p>
+                            <p><strong>الوقت:</strong> ${item.time || 'غير محدد'}</p>
+                            <p><strong>الأيام:</strong> ${item.days ? item.days.join('، ') : ''}</p>
+                            <p><strong>المصاريف:</strong> ${item.cost || 0} جنيه</p>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<div class="no-data">حدث خطأ أثناء الاتصال بقاعدة البيانات.</div>';
+            }
+        }
+
+        window.deleteLesson = async function(id) {
+            if (confirm('هل أنت متأكد من حذف هذا الدرس نهائياً من السحابة؟')) {
+                try {
+                    await deleteDoc(doc(db, "lessons", id));
+                    loadLessons();
+                } catch (e) {
+                    alert('فشل عملية الحذف!');
+                }
+            }
+        }
+
+        loadLessons();
+    </script>
+</body>
+</html>
