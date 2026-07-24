@@ -55,7 +55,6 @@
             color: var(--bg-color);
             border-color: var(--accent-color);
         }
-        /* كارت التنبيه بأقرب درس اليوم */
         .alert-box {
             background-color: var(--alert-bg);
             border: 1px solid #10b981;
@@ -77,7 +76,6 @@
             margin-bottom: 15px;
             border: 1px solid var(--border-color);
         }
-        /* تصميم مختلف ومميز لليوم الحالي */
         .day-section.today {
             background-color: var(--today-bg);
             border: 2px solid var(--today-border);
@@ -151,15 +149,19 @@
 
         const daysOfWeek = ["السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
-        // تحديد اسم اليوم الحالي بالعربي بناءً على نظام الجهاز
         function getCurrentDayName() {
-            const jsDays = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            // JavaScript getDay(): الأحد(0), الإثنين(1), الثلاثاء(2), الأربعاء(3), الخميس(4), الجمعة(5), السبت(6)
+            const mapDays = {
+                6: "السبت",
+                0: "الأحد",
+                1: "الإثنين",
+                2: "الثلاثاء",
+                3: "الأربعاء",
+                4: "الخميس",
+                5: "الجمعة"
+            };
             const now = new Date();
-            // تقريب يوم الأسبوع بما يوافق مصفوفة أيامنا
-            let dayIndex = now.getDay();
-            // تحويل طريقتنا لتوائم مصفوفة السبت كبداية أسبوع لو حابب، أو النظام العام:
-            // الأحد (0)، الإثنين (1)، الثلاثاء (2)، الأربعاء (3)، الخميس (4)، الجمعة (5)، السبت (6)
-            return jsDays[dayIndex];
+            return mapDays[now.getDay()];
         }
 
         async function loadSchedule() {
@@ -175,7 +177,6 @@
                 });
 
                 container.innerHTML = '';
-                
                 let todayLessons = [];
 
                 daysOfWeek.forEach(day => {
@@ -195,11 +196,12 @@
                     if (dayLessons.length === 0) {
                         html += `<div class="day-item" style="color: #64748b;">لا توجد دروس في هذا اليوم</div>`;
                     } else {
-                        // ترتيب دروس اليوم بالحسبان الزمني لو أمكن
                         dayLessons.forEach(l => {
-                            let teachers = Array.isArray(l.teacher) ? l.teacher.join('، ') : (l.teacher || 'غير محدد');
+                            let teacherInfo = l.teacher ? `${l.teacher}` : 'غير محدد';
+                            if(l.teacherPhone) teacherInfo += ` 📞 (${l.teacherPhone})`;
+                            
                             html += `<div class="day-item">
-                                <strong>${l.student}</strong> - ${l.subject} (${teachers}) 
+                                <strong>${l.student}</strong> - ${l.subject} (${teacherInfo}) 
                                 <br><span style="color:var(--accent-color);">⏰ ${l.time || 'وقت غير محدد'}</span>
                             </div>`;
                         });
@@ -208,20 +210,17 @@
                     container.innerHTML += html;
                 });
 
-                // معالجة التنبيه بأقرب درس اليوم
                 if (todayLessons.length > 0) {
-                    // فرز الدروس حسب الوقت تصاعدياً
                     todayLessons.sort((a, b) => (a.time || "23:59").localeCompare(b.time || "23:59"));
-                    
-                    // البحث عن أول درس وقته لسه مخلصش أو عرض الأول كأقرب درس
                     let nextLesson = todayLessons[0];
-                    let teachersStr = Array.isArray(nextLesson.teacher) ? nextLesson.teacher.join('، ') : nextLesson.teacher;
+                    let teacherStr = nextLesson.teacher || 'غير محدد';
+                    if(nextLesson.teacherPhone) teacherStr += ` 📞 (${nextLesson.teacherPhone})`;
                     
                     alertBox.innerHTML = `
                         <div class="alert-box">
                             <div class="alert-title">🔔 تنبيه أقرب موعد درس اليوم (${todayName}):</div>
                             <div>الطالب: <strong>${nextLesson.student}</strong> | المادة: <strong>${nextLesson.subject}</strong></div>
-                            <div>المدرس: ${teachersStr} | الساعة: <span style="color:#fde047; font-weight:bold;">${nextLesson.time || 'غير محدد'}</span></div>
+                            <div>المدرس: ${teacherStr} | الساعة: <span style="color:#fde047; font-weight:bold;">${nextLesson.time || 'غير محدد'}</span></div>
                         </div>
                     `;
                 } else {
