@@ -53,24 +53,36 @@
             color: var(--bg-color);
             border-color: var(--accent-color);
         }
-        .lesson-card {
+        /* كارت الطالب اللي يضم جواه كل المدرسين */
+        .student-group {
             background-color: var(--card-bg);
-            padding: 18px;
+            padding: 15px;
             border-radius: 12px;
-            margin-bottom: 16px; /* مسافة مريحة ومنسقة بين كل كارت والثاني */
+            margin-bottom: 16px;
             border: 1px solid var(--border-color);
             position: relative;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .lesson-card h3 {
-            margin: 0 0 10px 0;
+        .student-name {
+            margin: 0 0 12px 0;
             color: var(--accent-color);
-            font-size: 16px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 6px;
+            font-size: 18px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
         }
-        .lesson-card p {
-            margin: 6px 0;
+        /* الكارت الفرعي لكل مدرس تحت الطالب */
+        .teacher-card {
+            background-color: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .teacher-card:last-child {
+            margin-bottom: 0;
+        }
+        .teacher-card p {
+            margin: 5px 0;
             font-size: 13px;
             color: #cbd5e1;
         }
@@ -140,22 +152,30 @@
 
                 container.innerHTML = '';
                 lessons.forEach((item) => {
-                    // التحقق مما إذا كان هناك أكثر من مدرس مسجل في نفس العنصر لعمل بطاقة مستقلة لكل مدرس مع مادته وتوقيته
+                    // التحقق من المدرسين (سواء كان مدرس واحد أو مصفوفة مدرسين)
                     let teachers = Array.isArray(item.teacher) ? item.teacher : [item.teacher || 'غير محدد'];
 
-                    teachers.forEach((teach, index) => {
-                        container.innerHTML += `
-                            <div class="lesson-card">
-                                <button class="delete-btn" onclick="deleteLesson('${item.id}')">حذف</button>
-                                <h3>الطالب: ${item.student}</h3>
-                                <p><strong>المادة:</strong> ${item.subject} (${item.book || 'بدون ملزمة'})</p>
+                    let teachersHtml = '';
+                    teachers.forEach((teach) => {
+                        teachersHtml += `
+                            <div class="teacher-card">
                                 <p><strong>المدرس:</strong> ${teach}</p>
+                                <p><strong>المادة:</strong> ${item.subject} (${item.book || 'بدون ملزمة'})</p>
                                 <p><strong>الوقت:</strong> ${item.time || 'غير محدد'}</p>
                                 <p><strong>الأيام:</strong> ${item.days ? item.days.join('، ') : ''}</p>
                                 <p><strong>المصاريف:</strong> ${item.cost || 0} جنيه</p>
                             </div>
                         `;
                     });
+
+                    // رسم كارت الطالب الكبير وتحتيه كروت المدرسين الخاصة به
+                    container.innerHTML += `
+                        <div class="student-group">
+                            <button class="delete-btn" onclick="deleteLesson('${item.id}')">حذف</button>
+                            <h3 class="student-name">الطالب: ${item.student}</h3>
+                            ${teachersHtml}
+                        </div>
+                    `;
                 });
             } catch (e) {
                 console.error(e);
