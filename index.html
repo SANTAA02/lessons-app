@@ -173,16 +173,16 @@
                     <datalist id="studentsList"></datalist>
                 </div>
                 <div class="form-group">
-                    <label>رقم التلفون</label>
-                    <input type="tel" id="studentPhone" placeholder="مثال: 01012345678">
-                </div>
-                <div class="form-group">
                     <label>المادة الدراسية</label>
                     <input type="text" id="subject" placeholder="مثال: رياضيات">
                 </div>
                 <div class="form-group">
                     <label>اسم المدرس</label>
                     <input type="text" id="teacherName" placeholder="مثال: أستاذ محمد">
+                </div>
+                <div class="form-group">
+                    <label>رقم تلفون المدرس</label>
+                    <input type="tel" id="teacherPhone" placeholder="مثال: 01012345678">
                 </div>
                 <div class="form-group">
                     <label>نوع الكتب / الملزمة</label>
@@ -274,9 +274,9 @@
 
         window.addLesson = async function() {
             const student = document.getElementById('studentName').value.trim();
-            const phone = document.getElementById('studentPhone').value.trim();
             const subject = document.getElementById('subject').value.trim();
             const teacher = document.getElementById('teacherName').value.trim();
+            const teacherPhone = document.getElementById('teacherPhone').value.trim();
             const book = document.getElementById('bookType').value.trim();
             const days = getSelectedDays();
             const time = document.getElementById('lessonTime').value;
@@ -294,9 +294,9 @@
 
             const newLesson = {
                 student,
-                phone,
                 subject,
                 teacher,
+                teacherPhone,
                 book,
                 days,
                 time,
@@ -310,10 +310,10 @@
                 
                 document.getElementById('subject').value = '';
                 document.getElementById('teacherName').value = '';
+                document.getElementById('teacherPhone').value = '';
                 document.getElementById('bookType').value = '';
                 document.getElementById('lessonTime').value = '';
                 document.getElementById('lessonCost').value = '';
-                document.getElementById('studentPhone').value = '';
                 document.querySelectorAll('#daysContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
                 
                 await fetchLessons();
