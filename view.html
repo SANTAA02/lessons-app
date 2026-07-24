@@ -55,19 +55,22 @@
         }
         .lesson-card {
             background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 12px;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 16px; /* مسافة مريحة ومنسقة بين كل كارت والثاني */
             border: 1px solid var(--border-color);
             position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         .lesson-card h3 {
-            margin: 0 0 8px 0;
+            margin: 0 0 10px 0;
             color: var(--accent-color);
             font-size: 16px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
         }
         .lesson-card p {
-            margin: 4px 0;
+            margin: 6px 0;
             font-size: 13px;
             color: #cbd5e1;
         }
@@ -137,17 +140,22 @@
 
                 container.innerHTML = '';
                 lessons.forEach((item) => {
-                    container.innerHTML += `
-                        <div class="lesson-card">
-                            <button class="delete-btn" onclick="deleteLesson('${item.id}')">حذف</button>
-                            <h3>الطالب: ${item.student}</h3>
-                            <p><strong>المادة:</strong> ${item.subject} (${item.book || 'بدون ملزمة'})</p>
-                            <p><strong>المدرس:</strong> ${item.teacher}</p>
-                            <p><strong>الوقت:</strong> ${item.time || 'غير محدد'}</p>
-                            <p><strong>الأيام:</strong> ${item.days ? item.days.join('، ') : ''}</p>
-                            <p><strong>المصاريف:</strong> ${item.cost || 0} جنيه</p>
-                        </div>
-                    `;
+                    // التحقق مما إذا كان هناك أكثر من مدرس مسجل في نفس العنصر لعمل بطاقة مستقلة لكل مدرس مع مادته وتوقيته
+                    let teachers = Array.isArray(item.teacher) ? item.teacher : [item.teacher || 'غير محدد'];
+
+                    teachers.forEach((teach, index) => {
+                        container.innerHTML += `
+                            <div class="lesson-card">
+                                <button class="delete-btn" onclick="deleteLesson('${item.id}')">حذف</button>
+                                <h3>الطالب: ${item.student}</h3>
+                                <p><strong>المادة:</strong> ${item.subject} (${item.book || 'بدون ملزمة'})</p>
+                                <p><strong>المدرس:</strong> ${teach}</p>
+                                <p><strong>الوقت:</strong> ${item.time || 'غير محدد'}</p>
+                                <p><strong>الأيام:</strong> ${item.days ? item.days.join('، ') : ''}</p>
+                                <p><strong>المصاريف:</strong> ${item.cost || 0} جنيه</p>
+                            </div>
+                        `;
+                    });
                 });
             } catch (e) {
                 console.error(e);
