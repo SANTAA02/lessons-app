@@ -132,7 +132,7 @@
             font-size: 15px;
             cursor: pointer;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 5px;
             transition: background 0.2s;
         }
 
@@ -144,7 +144,7 @@
             display: none;
             padding: 14px;
             border-radius: 8px;
-            margin-top: 12px;
+            margin-bottom: 5px;
             font-size: 13px;
             font-weight: bold;
             text-align: center;
@@ -210,10 +210,10 @@
                     </div>
                 </div>
 
-                <button class="btn-add" onclick="addLesson()">حفظ الدرس أونلاين</button>
-                
-                <!-- مكان رسالة الإنذار بقى تحت زرار الحفظ مباشرة -->
+                <!-- رسالة الإنذار أصبحت فوق زرار الحفظ مباشرة -->
                 <div id="alertMsg" class="alert-msg"></div>
+
+                <button class="btn-add" onclick="addLesson()">حفظ الدرس أونلاين</button>
             </div>
         </div>
     </div>
@@ -266,8 +266,8 @@
             msg.innerHTML = text;
             msg.className = `alert-msg ${type === 'success' ? 'success-msg' : 'error-msg'}`;
             msg.style.display = 'block';
-            // زدت وقت ظهور الرسالة لـ 8 ثواني عشان تلحق تقراها كويس
-            setTimeout(() => { msg.style.display = 'none'; }, 8000);
+            // زدت وقت ظهور الرسالة لـ 10 ثوانٍ كاملة
+            setTimeout(() => { msg.style.display = 'none'; }, 10000);
         }
 
         window.addLesson = async function() {
