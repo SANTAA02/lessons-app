@@ -234,30 +234,24 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let lessons = [];
-
-        async function fetchLessons() {
+        async function fetchStudentsList() {
             try {
                 const querySnapshot = await getDocs(collection(db, "lessons"));
-                lessons = [];
+                let students = new Set();
                 querySnapshot.forEach((doc) => {
-                    lessons.push({ id: doc.id, ...doc.data() });
+                    let data = doc.data();
+                    if(data.student) students.add(data.student);
                 });
-                updateStudentsList();
+                const datalist = document.getElementById('studentsList');
+                datalist.innerHTML = '';
+                students.forEach(st => {
+                    datalist.innerHTML += `<option value="${st}">`;
+                });
             } catch (e) {
-                console.error("خطأ في جلب البيانات: ", e);
+                console.error("خطأ في جلب الطلاب: ", e);
             }
         }
-        fetchLessons();
-        
-        function updateStudentsList() {
-            const datalist = document.getElementById('studentsList');
-            let students = [...new Set(lessons.map(l => l.student))];
-            datalist.innerHTML = '';
-            students.forEach(st => {
-                datalist.innerHTML += `<option value="${st}">`;
-            });
-        }
+        fetchStudentsList();
 
         function getSelectedDays() {
             const checkboxes = document.querySelectorAll('#daysContainer input[type="checkbox"]:checked');
@@ -271,7 +265,7 @@
             msg.innerHTML = text;
             msg.className = `alert-msg ${type === 'success' ? 'success-msg' : 'error-msg'}`;
             msg.style.display = 'block';
-            setTimeout(() => { msg.style.display = 'none'; }, 5000);
+            setTimeout(() => { msg.style.display = 'none'; }, 6000);
         }
 
         window.addLesson = async function() {
@@ -299,25 +293,29 @@
                 return;
             }
 
-            // فحص التعارض: هل نفس الطالب عنده درس في نفس الوقت وفي أي يوم من الأيام المختارة؟
+            // فحص لحظي مباشر من قاعدة البيانات السحابية لضمان عدم وجود أي تداخل
             let conflictFound = null;
-            for (let existing of lessons) {
-                if (existing.student && existing.student.toLowerCase() === student.toLowerCase() && existing.time === time) {
-                    // نتحقق لو فيه تقاطع في الأيام
-                    let commonDays = days.filter(d => existing.days && existing.days.includes(d));
-                    if (commonDays.length > 0) {
-                        conflictFound = {
-                            day: commonDays[0],
-                            subject: existing.subject,
-                            teacher: existing.teacher || 'غير محدد'
-                        };
-                        break;
+            try {
+                const querySnapshot = await getDocs(collection(db, "lessons"));
+                querySnapshot.forEach((doc) => {
+                    let existing = doc.data();
+                    if (existing.student && existing.student.trim().toLowerCase() === student.toLowerCase() && existing.time === time) {
+                        let commonDays = days.filter(d => existing.days && existing.days.includes(d));
+                        if (commonDays.length > 0) {
+                            conflictFound = {
+                                day: commonDays[0],
+                                subject: existing.subject,
+                                teacher: existing.teacher || 'غير محدد'
+                            };
+                        }
                     }
-                }
+                });
+            } catch (e) {
+                console.error("خطأ في التحقق من التعارض:", e);
             }
 
             if (conflictFound) {
-                showAlert(`⚠️ <strong>انتبه!</strong> الميعاد محجوز بالفعل.<br>الطالب <strong>${student}</strong> لديه درس مادة (<strong>${conflictFound.subject}</strong>) مع المدرس (${conflictFound.teacher}) في يوم <strong>${conflictFound.day}</strong> الساعة <strong>${time}</strong>.`, 'error');
+                showAlert(`⚠️ <strong>انتبه! الميعاد محجوز بالفعل.</strong><br>الطالب <strong>${student}</strong> لديه مادة (<strong>${conflictFound.subject}</strong>) مع (${conflictFound.teacher}) يوم <strong>${conflictFound.day}</strong> الساعة <strong>${time}</strong>.`, 'error');
                 return;
             }
 
@@ -346,7 +344,7 @@
                 document.getElementById('lessonCost').value = '';
                 document.querySelectorAll('#daysContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
                 
-                await fetchLessons();
+                await fetchStudentsList();
             } catch (e) {
                 console.error("خطأ أثناء الإضافة: ", e);
                 showAlert('حدث خطأ أثناء الحفظ بالسحابة، حاول مرة أخرى.', 'error');
