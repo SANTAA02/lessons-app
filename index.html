@@ -14,8 +14,6 @@
             --border-color: #334155;
             --success-color: #22c55e;
             --danger-color: #f43f5e;
-            --ios-color: #10b981;
-            --ios-hover: #059669;
         }
 
         body {
@@ -65,7 +63,7 @@
             border-color: var(--accent-color);
         }
 
-        /* خانة تنبيهات الآيفون العلوية الشيك */
+        /* خانة تنبيهات الآيفون الشاملة لكل الجدول */
         .ios-banner {
             background: linear-gradient(135deg, #065f46, #047857);
             border: 1px solid #059669;
@@ -252,10 +250,10 @@
             <a onclick="location.href='schedule.html'" class="nav-btn">تقويم الأسبوع</a>
         </div>
 
-        <!-- خانة تنبيهات الآيفون الثابتة والشيك في الأعلى -->
+        <!-- خانة مزامنة الجدول بالكامل للآيفون -->
         <div class="ios-banner">
-            <span class="ios-banner-text">📲 مزامنة التنبيهات للآيفون</span>
-            <button class="btn-ios-top" onclick="exportToIosCalendar()">تحميل التقويم</button>
+            <span class="ios-banner-text">📲 مزامنة كل جدول الأسبوع للآيفون</span>
+            <button class="btn-ios-top" onclick="exportAllToIosCalendar()">تنزيل كل التنبيهات</button>
         </div>
 
         <div class="card">
@@ -303,7 +301,6 @@
                     </div>
                 </div>
 
-                <!-- رسالة الإنذار فوق زرار الحفظ مباشرة -->
                 <div id="alertMsg" class="alert-msg"></div>
 
                 <button class="btn-add" onclick="addLesson()">حفظ الدرس أونلاين</button>
@@ -342,53 +339,6 @@
                 checkLogin();
             }
         });
-
-        // تصدير التقويم للآيفون (لآخر درس تم إدخاله أو كمثال حي)
-        function exportToIosCalendar() {
-            // لو تم إدخال درس حالياً، نأخذ بياناته، وإلا نبه المستخدم
-            if (!window.lastCreatedLesson) {
-                alert("الرجاء حفظ درس جديد أولاً أو إدخال بياناته لتصديره للتقويم.");
-                return;
-            }
-
-            const dayMap = {
-                "السبت": "SA",
-                "الأحد": "SU",
-                "الإثنين": "MO",
-                "الثلاثاء": "TU",
-                "الأربعاء": "WE",
-                "الخميس": "TH",
-                "الجمعة": "FR"
-            };
-
-            let lesson = window.lastCreatedLesson;
-            let byDays = lesson.days.map(d => dayMap[d]).filter(Boolean).join(",");
-
-            let icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Lessons Scheduler//AR
-CALSCALE:GREGORIAN
-METHOD:PUBLISH
-BEGIN:VEVENT
-SUMMARY:درس ${lesson.subject} (${lesson.student})
-DESCRIPTION:المدرس: ${lesson.teacher}\\nالمصاريف: ${lesson.cost} جنيه
-RRULE:FREQ=WEEKLY;BYDAY=${byDays}
-BEGIN:VALARM
-TRIGGER:-PT15M
-ACTION:DISPLAY
-DESCRIPTION:تنبيه: ميعاد درس ${lesson.subject} بعد 15 دقيقة
-END:VALARM
-END:VEVENT
-END:VCALENDAR`;
-
-            let blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
-            let link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.setAttribute('download', `lesson_${lesson.subject}.ics`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
     </script>
 
     <script type="module">
@@ -440,6 +390,71 @@ END:VCALENDAR`;
             msg.className = `alert-msg ${type === 'success' ? 'success-msg' : 'error-msg'}`;
             msg.style.display = 'block';
             setTimeout(() => { msg.style.display = 'none'; }, 10000);
+        }
+
+        // دالة تصدير كل جدول الأسبوع والدروس المحفوظة لملف تقويم الآيفون
+        window.exportAllToIosCalendar = async function() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "lessons"));
+                if (querySnapshot.empty) {
+                    alert("لا توجد دروس مسجلة في الجدول حالياً لتصديرها.");
+                    return;
+                }
+
+                const dayMap = {
+                    "السبت": "SA",
+                    "الأحد": "SU",
+                    "الإثنين": "MO",
+                    "الثلاثاء": "TU",
+                    "الأربعاء": "WE",
+                    "الخميس": "TH",
+                    "الجمعة": "FR"
+                };
+
+                let icsEvents = [];
+                querySnapshot.forEach((doc) => {
+                    let lesson = doc.data();
+                    if (lesson.days && lesson.days.length > 0) {
+                        let byDays = lesson.days.map(d => dayMap[d]).filter(Boolean).join(",");
+                        let eventBlock = `BEGIN:VEVENT
+SUMMARY:درس ${lesson.subject || 'بدون مادة'} (${lesson.student || 'طالب'})
+DESCRIPTION:المدرس: ${lesson.teacher || 'غير محدد'}\\nرقم التليفون: ${lesson.teacherPhone || 'لا يوجد'}\\nالمصاريف: ${lesson.cost || 0} جنيه
+RRULE:FREQ=WEEKLY;BYDAY=${byDays}
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:تنبيه: ميعاد درس ${lesson.subject || 'المادة'} بعد 15 دقيقة
+END:VALARM
+END:VEVENT`;
+                        icsEvents.push(eventBlock);
+                    }
+                });
+
+                if (icsEvents.length === 0) {
+                    alert("لا توجد بيانات أيام صحيحة لتصديرها.");
+                    return;
+                }
+
+                let icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//All Lessons Scheduler//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+${icsEvents.join("\n")}
+END:VCALENDAR`;
+
+                let blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+                let link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.setAttribute('download', `all_school_lessons_schedule.ics`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } catch (e) {
+                console.error("خطأ أثناء جلب الجدول للتقويم:", e);
+                alert("حدث خطأ أثناء تحميل جدول الأسبوع، حاول مرة أخرى.");
+            }
         }
 
         window.addLesson = async function() {
@@ -507,9 +522,6 @@ END:VCALENDAR`;
             try {
                 await addDoc(collection(db, "lessons"), newLesson);
                 showAlert('تم حفظ الدرس بنجاح في السحابة أونلاين! 🚀', 'success');
-                
-                // حفظ أحدث درس لتسهيل تحميله عبر زرار الآيفون العلوي
-                window.lastCreatedLesson = newLesson;
 
                 document.getElementById('studentName').value = '';
                 document.getElementById('subject').value = '';
