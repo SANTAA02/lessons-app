@@ -63,10 +63,10 @@
             border-color: var(--accent-color);
         }
 
-        /* خانة تنبيهات الآيفون الشاملة لكل الجدول */
+        /* خانة مزامنة تقويم جوجل الشاملة لكل الجدول */
         .ios-banner {
-            background: linear-gradient(135deg, #065f46, #047857);
-            border: 1px solid #059669;
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            border: 1px solid #3b82f6;
             padding: 12px 15px;
             border-radius: 12px;
             margin-bottom: 20px;
@@ -79,12 +79,12 @@
         .ios-banner-text {
             font-size: 13px;
             font-weight: bold;
-            color: #ecfdf5;
+            color: #eff6ff;
         }
 
         .btn-ios-top {
             background-color: #ffffff;
-            color: #065f46;
+            color: #1e40af;
             border: none;
             padding: 8px 12px;
             border-radius: 6px;
@@ -250,10 +250,10 @@
             <a onclick="location.href='schedule.html'" class="nav-btn">تقويم الأسبوع</a>
         </div>
 
-        <!-- خانة مزامنة الجدول بالكامل للآيفون -->
+        <!-- خانة مزامنة تقويم جوجل المباشر -->
         <div class="ios-banner">
-            <span class="ios-banner-text">📲 مزامنة كل جدول الأسبوع للآيفون</span>
-            <button class="btn-ios-top" onclick="exportAllToIosCalendar()">تنزيل كل التنبيهات</button>
+            <span class="ios-banner-text">📅 مزامنة الجدول مع تقويم جوجل</span>
+            <button class="btn-ios-top" onclick="exportAllToGoogleCalendar()">إضافة لتقويم جوجل</button>
         </div>
 
         <div class="card">
@@ -392,8 +392,8 @@
             setTimeout(() => { msg.style.display = 'none'; }, 10000);
         }
 
-        // دالة تصدير كل جدول الأسبوع والدروس المحفوظة لملف تقويم الآيفون
-        window.exportAllToIosCalendar = async function() {
+        // دالة تصدير الملف كـ ICS معدل بالساعات الحقيقية والتنبيهات الصحيحة
+        window.exportAllToGoogleCalendar = async function() {
             try {
                 const querySnapshot = await getDocs(collection(db, "lessons"));
                 if (querySnapshot.empty) {
@@ -414,11 +414,25 @@
                 let icsEvents = [];
                 querySnapshot.forEach((doc) => {
                     let lesson = doc.data();
-                    if (lesson.days && lesson.days.length > 0) {
+                    if (lesson.days && lesson.days.length > 0 && lesson.time) {
                         let byDays = lesson.days.map(d => dayMap[d]).filter(Boolean).join(",");
+                        
+                        // معالجة الساعات الصحيحة للبدء والانتهاء (ساعة ونصف افتراضياً أو ساعة)
+                        let timeParts = lesson.time.split(":");
+                        let startHour = timeParts[0];
+                        let startMin = timeParts[1] || "00";
+                        
+                        // حساب ساعة النهاية (ساعة بعدها)
+                        let endHourNum = (parseInt(startHour) + 1) % 24;
+                        let endHour = String(endHourNum).padStart(2, '0');
+                        let startTimeStr = `${startHour}${startMin}00`;
+                        let endTimeStr = `${endHour}${startMin}00`;
+
                         let eventBlock = `BEGIN:VEVENT
 SUMMARY:درس ${lesson.subject || 'بدون مادة'} (${lesson.student || 'طالب'})
 DESCRIPTION:المدرس: ${lesson.teacher || 'غير محدد'}\\nرقم التليفون: ${lesson.teacherPhone || 'لا يوجد'}\\nالمصاريف: ${lesson.cost || 0} جنيه
+DTSTART;TZID=Africa/Cairo:20260727T${startTimeStr}
+DTEND;TZID=Africa/Cairo:20260727T${endTimeStr}
 RRULE:FREQ=WEEKLY;BYDAY=${byDays}
 BEGIN:VALARM
 TRIGGER:-PT15M
@@ -431,13 +445,13 @@ END:VEVENT`;
                 });
 
                 if (icsEvents.length === 0) {
-                    alert("لا توجد بيانات أيام صحيحة لتصديرها.");
+                    alert("لا توجد بيانات مواعيد صحيحة لتصديرها.");
                     return;
                 }
 
                 let icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//All Lessons Scheduler//AR
+PRODID:-//School Lessons Scheduler//AR
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 ${icsEvents.join("\n")}
@@ -446,14 +460,16 @@ END:VCALENDAR`;
                 let blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
                 let link = document.createElement('a');
                 link.href = window.URL.createObjectURL(blob);
-                link.setAttribute('download', `all_school_lessons_schedule.ics`);
+                link.setAttribute('download', `school_schedule_corrected.ics`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
+                showAlert('تم تحميل ملف المواعيد بالساعات الصحيحة! افتحه ليدخل التقويم بكل دقة وتنبيبات 15 دقيقة 🚀', 'success');
+
             } catch (e) {
                 console.error("خطأ أثناء جلب الجدول للتقويم:", e);
-                alert("حدث خطأ أثناء تحميل جدول الأسبوع، حاول مرة أخرى.");
+                alert("حدث خطأ أثناء تحميل الجدول، حاول مرة أخرى.");
             }
         }
 
