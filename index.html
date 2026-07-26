@@ -14,6 +14,8 @@
             --border-color: #334155;
             --success-color: #22c55e;
             --danger-color: #f43f5e;
+            --ios-color: #10b981;
+            --ios-hover: #059669;
         }
 
         body {
@@ -40,7 +42,7 @@
         .nav-links {
             display: flex;
             gap: 6px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .nav-btn {
@@ -61,6 +63,42 @@
             background-color: var(--accent-color);
             color: var(--bg-color);
             border-color: var(--accent-color);
+        }
+
+        /* خانة تنبيهات الآيفون العلوية الشيك */
+        .ios-banner {
+            background: linear-gradient(135deg, #065f46, #047857);
+            border: 1px solid #059669;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .ios-banner-text {
+            font-size: 13px;
+            font-weight: bold;
+            color: #ecfdf5;
+        }
+
+        .btn-ios-top {
+            background-color: #ffffff;
+            color: #065f46;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-ios-top:hover {
+            background-color: #f3f4f6;
         }
 
         .card {
@@ -160,7 +198,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(15, 23, 42, 0.95);
+            background-color: rgba(15, 23, 42, 0.98);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -214,6 +252,12 @@
             <a onclick="location.href='schedule.html'" class="nav-btn">تقويم الأسبوع</a>
         </div>
 
+        <!-- خانة تنبيهات الآيفون الثابتة والشيك في الأعلى -->
+        <div class="ios-banner">
+            <span class="ios-banner-text">📲 مزامنة التنبيهات للآيفون</span>
+            <button class="btn-ios-top" onclick="exportToIosCalendar()">تحميل التقويم</button>
+        </div>
+
         <div class="card">
             <div class="form-grid">
                 <div class="form-group">
@@ -259,7 +303,7 @@
                     </div>
                 </div>
 
-                <!-- رسالة الإنذار أصبحت فوق زرار الحفظ مباشرة -->
+                <!-- رسالة الإنذار فوق زرار الحفظ مباشرة -->
                 <div id="alertMsg" class="alert-msg"></div>
 
                 <button class="btn-add" onclick="addLesson()">حفظ الدرس أونلاين</button>
@@ -268,7 +312,6 @@
     </div>
 
     <script>
-        // ضع هنا اسم المستخدم وكلمة المرور الخاصة بك (يمكنك تغييرها كما تحب)
         const CORRECT_USER = "OSSAMA";
         const CORRECT_PASS = "147369";
 
@@ -278,8 +321,7 @@
             const errorDiv = document.getElementById('loginError');
 
             if (user === CORRECT_USER && pass === CORRECT_PASS) {
-                // حفظ حالة الدخول في المتصفح عشان ميسألكش كل شوية
-                sessionStorage.setItem("isLoggedIn", "true");
+                sessionStorage.setItem("appLoggedIn", "true");
                 document.getElementById('loginOverlay').style.display = 'none';
             } else {
                 errorDiv.innerHTML = "اسم المستخدم أو كلمة المرور غير صحيحة!";
@@ -287,19 +329,66 @@
             }
         }
 
-        // التحقق لو مسجل دخول قبل كده في نفس الجلسة
-        window.onload = function() {
-            if (sessionStorage.getItem("isLoggedIn") === "true") {
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (sessionStorage.getItem("appLoggedIn") === "true") {
                 document.getElementById('loginOverlay').style.display = 'none';
+            } else {
+                document.getElementById('loginOverlay').style.display = 'flex';
             }
-        }
+        });
 
-        // السماح بالضغط على زر Enter لتسجيل الدخول مباشرة
         document.getElementById('loginPass').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 checkLogin();
             }
         });
+
+        // تصدير التقويم للآيفون (لآخر درس تم إدخاله أو كمثال حي)
+        function exportToIosCalendar() {
+            // لو تم إدخال درس حالياً، نأخذ بياناته، وإلا نبه المستخدم
+            if (!window.lastCreatedLesson) {
+                alert("الرجاء حفظ درس جديد أولاً أو إدخال بياناته لتصديره للتقويم.");
+                return;
+            }
+
+            const dayMap = {
+                "السبت": "SA",
+                "الأحد": "SU",
+                "الإثنين": "MO",
+                "الثلاثاء": "TU",
+                "الأربعاء": "WE",
+                "الخميس": "TH",
+                "الجمعة": "FR"
+            };
+
+            let lesson = window.lastCreatedLesson;
+            let byDays = lesson.days.map(d => dayMap[d]).filter(Boolean).join(",");
+
+            let icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Lessons Scheduler//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+SUMMARY:درس ${lesson.subject} (${lesson.student})
+DESCRIPTION:المدرس: ${lesson.teacher}\\nالمصاريف: ${lesson.cost} جنيه
+RRULE:FREQ=WEEKLY;BYDAY=${byDays}
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:تنبيه: ميعاد درس ${lesson.subject} بعد 15 دقيقة
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+            let blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+            let link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.setAttribute('download', `lesson_${lesson.subject}.ics`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 
     <script type="module">
@@ -419,6 +508,9 @@
                 await addDoc(collection(db, "lessons"), newLesson);
                 showAlert('تم حفظ الدرس بنجاح في السحابة أونلاين! 🚀', 'success');
                 
+                // حفظ أحدث درس لتسهيل تحميله عبر زرار الآيفون العلوي
+                window.lastCreatedLesson = newLesson;
+
                 document.getElementById('studentName').value = '';
                 document.getElementById('subject').value = '';
                 document.getElementById('teacherName').value = '';
