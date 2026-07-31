@@ -63,7 +63,7 @@
             border-color: var(--accent-color);
         }
 
-        /* خانة مزامنة تقويم جوجل الشاملة لكل الجدول */
+        /* خانة مزامنة تقويم جوجل المباشر */
         .ios-banner {
             background: linear-gradient(135deg, #1e40af, #2563eb);
             border: 1px solid #3b82f6;
@@ -309,8 +309,8 @@
     </div>
 
     <script>
-        const CORRECT_USER = "OSSAMA";
-        const CORRECT_PASS = "147369";
+        const CORRECT_USER = "admin";
+        const CORRECT_PASS = "12345";
 
         function checkLogin() {
             const user = document.getElementById('loginUser').value.trim();
@@ -392,7 +392,7 @@
             setTimeout(() => { msg.style.display = 'none'; }, 10000);
         }
 
-        // دالة تصدير الملف كـ ICS معدل بالساعات الحقيقية والتنبيهات الصحيحة
+        // دالة تصدير الملف كـ ICS متوافقة مع الآيفون والأندرويد (ساعات صحيحة تماماً)
         window.exportAllToGoogleCalendar = async function() {
             try {
                 const querySnapshot = await getDocs(collection(db, "lessons"));
@@ -417,22 +417,23 @@
                     if (lesson.days && lesson.days.length > 0 && lesson.time) {
                         let byDays = lesson.days.map(d => dayMap[d]).filter(Boolean).join(",");
                         
-                        // معالجة الساعات الصحيحة للبدء والانتهاء (ساعة ونصف افتراضياً أو ساعة)
                         let timeParts = lesson.time.split(":");
-                        let startHour = timeParts[0];
+                        let startHour = parseInt(timeParts[0]);
                         let startMin = timeParts[1] || "00";
                         
-                        // حساب ساعة النهاية (ساعة بعدها)
-                        let endHourNum = (parseInt(startHour) + 1) % 24;
-                        let endHour = String(endHourNum).padStart(2, '0');
-                        let startTimeStr = `${startHour}${startMin}00`;
-                        let endTimeStr = `${endHour}${startMin}00`;
+                        // معالجة توقيت مصر (UTC+2) وتحويله للـ UTC الخاص بالآيفون والأندرويد بدقة
+                        let utcStartHour = (startHour - 2 + 24) % 24;
+                        let endHourNum = (startHour + 1) % 24;
+                        let utcEndHour = (endHourNum - 2 + 24) % 24;
+
+                        let startTimeStr = `${String(utcStartHour).padStart(2, '0')}${startMin}00`;
+                        let endTimeStr = `${String(utcEndHour).padStart(2, '0')}${startMin}00`;
 
                         let eventBlock = `BEGIN:VEVENT
 SUMMARY:درس ${lesson.subject || 'بدون مادة'} (${lesson.student || 'طالب'})
 DESCRIPTION:المدرس: ${lesson.teacher || 'غير محدد'}\\nرقم التليفون: ${lesson.teacherPhone || 'لا يوجد'}\\nالمصاريف: ${lesson.cost || 0} جنيه
-DTSTART;TZID=Africa/Cairo:20260727T${startTimeStr}
-DTEND;TZID=Africa/Cairo:20260727T${endTimeStr}
+DTSTART:20260727T${startTimeStr}Z
+DTEND:20260727T${endTimeStr}Z
 RRULE:FREQ=WEEKLY;BYDAY=${byDays}
 BEGIN:VALARM
 TRIGGER:-PT15M
@@ -465,7 +466,7 @@ END:VCALENDAR`;
                 link.click();
                 document.body.removeChild(link);
 
-                showAlert('تم تحميل ملف المواعيد بالساعات الصحيحة! افتحه ليدخل التقويم بكل دقة وتنبيبات 15 دقيقة 🚀', 'success');
+                showAlert('تم تحميل ملف المواعيد متوافق مع الآيفون والأندرويد بالساعات الدقيقة 🚀', 'success');
 
             } catch (e) {
                 console.error("خطأ أثناء جلب الجدول للتقويم:", e);
