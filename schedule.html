@@ -151,10 +151,8 @@
         const daysOfWeek = ["السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
 
         function getCurrentDayName() {
-            // استخدام دالة تعتمد على اسم اليوم المباشر باللغة العربية لضمان المطابقة التامة بدون مشاكل فوارق التوقيت
             const options = { weekday: 'long', timeZone: 'Africa/Cairo' };
             const todayStr = new Intl.DateTimeFormat('ar-EG', options).format(new Date());
-            // تنظيف النص لو فيه أي تشكيل أو مسافات إضافية
             return todayStr.trim();
         }
 
@@ -162,7 +160,6 @@
             const container = document.getElementById('scheduleContainer');
             const alertBox = document.getElementById('nextLessonAlert');
             const todayName = getCurrentDayName();
-            console.log("اليوم الحالي هو:", todayName); // للتأكد من المطلع في الـ Console
 
             try {
                 const querySnapshot = await getDocs(collection(db, "lessons"));
@@ -177,6 +174,9 @@
                 daysOfWeek.forEach(day => {
                     let dayLessons = lessons.filter(l => l.days && l.days.includes(day));
                     
+                    // ترتيب الدروس داخل اليوم حسب الوقت تصاعدياً
+                    dayLessons.sort((a, b) => (a.time || "23:59").localeCompare(b.time || "23:59"));
+
                     if (day === todayName) {
                         todayLessons = dayLessons;
                     }
