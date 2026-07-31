@@ -392,7 +392,7 @@
             setTimeout(() => { msg.style.display = 'none'; }, 10000);
         }
 
-        // دالة تصدير الملف كـ ICS متوافقة تماماً مع الآيفون والأندرويد وبدون تواريخ قديمة
+        // دالة تصدير الملف كـ ICS بالتوقيت المحلي الصريح لضمان انضباط الساعة على الأندرويد والآيفون
         window.exportAllToGoogleCalendar = async function() {
             try {
                 const querySnapshot = await getDocs(collection(db, "lessons"));
@@ -411,7 +411,7 @@
                     "السبت": { code: "SA", jsDay: 6 }
                 };
 
-                function getNextDayTimestamp(dayName, timeStr) {
+                function getNextDayLocalTimestamp(dayName, timeStr) {
                     let targetDayIndex = dayMap[dayName].jsDay;
                     let now = new Date();
                     
@@ -434,24 +434,23 @@
 
                     let targetDate = new Date(now);
                     targetDate.setDate(now.getDate() + dayDiff);
-                    targetDate.setHours(hour, min, 0, 0);
+                    
+                    let year = targetDate.getFullYear();
+                    let month = String(targetDate.getMonth() + 1).padStart(2, '0');
+                    let day = String(targetDate.getDate()).padStart(2, '0');
+                    let hourStr = String(hour).padStart(2, '0');
+                    let minStr = String(min).padStart(2, '0');
 
-                    let utcYear = targetDate.getUTCFullYear();
-                    let utcMonth = String(targetDate.getUTCMonth() + 1).padStart(2, '0');
-                    let utcDay = String(targetDate.getUTCDate()).padStart(2, '0');
-                    let utcHour = String((targetDate.getUTCHours() - 2 + 24) % 24).padStart(2, '0');
-                    let utcMin = String(targetDate.getUTCMinutes()).padStart(2, '0');
-
-                    let startStr = `${utcYear}${utcMonth}${utcDay}T${utcHour}${utcMin}00Z`;
+                    let startStr = `${year}${month}${day}T${hourStr}${minStr}00`;
 
                     let endDate = new Date(targetDate.getTime() + 60 * 60 * 1000);
-                    let endUtcYear = endDate.getUTCFullYear();
-                    let endUtcMonth = String(endDate.getUTCMonth() + 1).padStart(2, '0');
-                    let endUtcDay = String(endDate.getUTCDate()).padStart(2, '0');
-                    let endUtcHour = String((endDate.getUTCHours() - 2 + 24) % 24).padStart(2, '0');
-                    let endUtcMin = String(endDate.getUTCMinutes()).padStart(2, '0');
+                    let endYear = endDate.getFullYear();
+                    let endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+                    let endDay = String(endDate.getDate()).padStart(2, '0');
+                    let endHourStr = String(endDate.getHours()).padStart(2, '0');
+                    let endMinStr = String(endDate.getMinutes()).padStart(2, '0');
 
-                    let endStr = `${endUtcYear}${endUtcMonth}${endUtcDay}T${endUtcHour}${endUtcMin}00Z`;
+                    let endStr = `${endYear}${endMonth}${endDay}T${endHourStr}${endMinStr}00`;
 
                     return { start: startStr, end: endStr };
                 }
@@ -463,13 +462,13 @@
                         lesson.days.forEach(dayName => {
                             if (dayMap[dayName]) {
                                 let byDayCode = dayMap[dayName].code;
-                                let timestamps = getNextDayTimestamp(dayName, lesson.time);
+                                let timestamps = getNextDayLocalTimestamp(dayName, lesson.time);
 
                                 let eventBlock = `BEGIN:VEVENT
 SUMMARY:درس ${lesson.subject || 'بدون مادة'} (${lesson.student || 'طالب'})
 DESCRIPTION:المدرس: ${lesson.teacher || 'غير محدد'}\\nرقم التليفون: ${lesson.teacherPhone || 'لا يوجد'}\\nالمصاريف: ${lesson.cost || 0} جنيه
-DTSTART:${timestamps.start}
-DTEND:${timestamps.end}
+DTSTART;TZID=Africa/Cairo:${timestamps.start}
+DTEND;TZID=Africa/Cairo:${timestamps.end}
 RRULE:FREQ=WEEKLY;COUNT=12;BYDAY=${byDayCode}
 BEGIN:VALARM
 TRIGGER:-PT15M
@@ -493,18 +492,28 @@ VERSION:2.0
 PRODID:-//School Lessons Scheduler//AR
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
+BEGIN:VTIMEZONE
+TZID:Africa/Cairo
+X-LIC-LOCATION:Africa/Cairo
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0200
+TZNAME:EET
+END:STANDARD
+END:VTIMEZONE
 ${icsEvents.join("\n")}
 END:VCALENDAR`;
 
                 let blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
                 let link = document.createElement('a');
                 link.href = window.URL.createObjectURL(blob);
-                link.setAttribute('download', `school_schedule_updated.ics`);
+                link.setAttribute('download', `school_schedule_localtime.ics`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
-                showAlert('تم تحميل الجدول المحدث متوافق مع الآيفون والأندرويد بدقة على مدار الشهر 🚀', 'success');
+                showAlert('تم تحميل ملف المواعيد بتوقيت مصر المحلي الصريح بنجاح 🚀', 'success');
 
             } catch (e) {
                 console.error("خطأ أثناء جلب الجدول للتقويم:", e);
